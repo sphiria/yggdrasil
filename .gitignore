@@ -1,0 +1,5 @@
+synced/*
+!synced/.readme
+restore/*
+!restore/.readme
+.vagrant/

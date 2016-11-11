@@ -12,16 +12,17 @@ apt-get update
 apt-get install -y nginx-full
 systemctl stop nginx.service # we don't need it right now
 
-# override default nginx with our own synced nginx folder
-if ! [ -L /etc/nginx ]; then
-  rm -rf /etc/nginx
-  ln -fs /synced/nginx /etc/nginx
+# copy nginx config + site config
+if ! [ -L /etc/nginx/nginx.conf ]; then
+  rm -rf /etc/nginx/nginx.conf
+  cp /vagrant/src/nginx/nginx.conf /etc/nginx/nginx.conf
+  cp /vagrant/src/nginx/mediawiki.conf /etc/nginx/mediawiki.conf
 fi
 
-# expose shared wikimedia to nginx
-if ! [ -L /srv/mediawiki ]; then
-  rm -rf /srv/mediawiki
-  ln -fs /synced/mediawiki /srv/mediawiki
+# expose "interesting" folders to share
+if ! [ -L /srv/http/mediawiki ]; then
+  rm -rf /srv/http/mediawiki
+  ln -fs /synced/mediawiki /srv/http/mediawiki
 fi
 
 # php5 for lazy debian defaults
@@ -36,7 +37,7 @@ apt-get install -y php5-intl				# to handle Unicode normalization
 apt-get install -y php5-apcu 				# local object caching
 apt-get install -y php5-mysqlnd				# mysql php driver
 apt-get install -y imagemagick 				# imagemagick for thumbnails
-apt-get install -y texlive					# for mathhematical inline display
+apt-get install -y texlive					# for mathematical inline display
 
 # build
 mkdir /root/junk
@@ -97,8 +98,26 @@ cd "../"
 sed -i -e '$a\apc.enabled=1' -e '$a\apc.enable_cli=1' 20-apcu.ini
 
 # get mediawiki
+mkdir -p /srv/http/mediawiki
 wget "https://releases.wikimedia.org/mediawiki/1.27/mediawiki-1.27.1.tar.gz"
-tar xvf "mediawiki-1.27.1.tar.gz" -C /srv/mediawiki/ --strip-components=1
+tar xvf "mediawiki-1.27.1.tar.gz" -C /srv/http/mediawiki --strip-components=1
+
+# install mediawiki extensions
+
+# restore mediawiki backups if they exist
+# LocalSettings.php
+if ! [ -L "/synced/restore/LocalSettings.php" ]; then
+  cp "/synced/restore/LocalSettings.php" "/srv/http/mediawiki/LocalSettings.php"
+fi
+# images
+if ! [ -L "/synced/restore/images.tar.gz" ]; then
+	tar xvf "/synced/restore/images.tar.gz" -C /srv/http/mediawiki --strip-components=4
+fi
+# database
+if ! [ -L "/synced/restore/backup.sql" ]; then
+	mysqladmin -u root -p'secretpassword' create mediawiki
+	mysql -u root -p'secretpassword' mediawiki < /synced/restore/backup.sql
+fi
 
 # clean
 rm -rf /root/junk

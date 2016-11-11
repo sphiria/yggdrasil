@@ -1,0 +1,5 @@
+stuff to restore goes in this folder
+stuff is hardcoded so far
+images: images.tar.gz
+db: backup.sql
+mediawiki: LocalSettings.php

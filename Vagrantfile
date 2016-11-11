@@ -5,9 +5,13 @@ Vagrant.configure("2") do |config|
 	config.vm.box = "debian/jessie64"
 	config.vm.box_version = "8.6.1"
 
-	# let's expose mediawiki & nginx to folders in the vm
-	config.vm.synced_folder "mediawiki/", "/synced/mediawiki"
-	config.vm.synced_folder "nginx/", "/synced/nginx"
+	# let's expose our folder with config files and utilities
+	config.vm.synced_folder "src/", "/vagrant/src/"
+
+	# let's expose some folders in the vm
+	config.vm.synced_folder "synced/nginx", "/synced/nginx/", create: true
+	config.vm.synced_folder "synced/mediawiki", "/synced/mediawiki/", create: true
+	config.vm.synced_folder "restore/", "/synced/restore/", create: true
 
 	# bootstrap script
 	config.vm.provision :shell, path: "bootstrap.sh"
