@@ -22,11 +22,9 @@ if ! [ -L /etc/nginx/nginx.conf ]; then
 	cp /vagrant/src/nginx/mediawiki.conf /etc/nginx/mediawiki.conf
 fi
 
-# expose "interesting" folders to share
-if ! [ -L /srv/http/mediawiki ]; then
-	rm -rf /srv/http/mediawiki
-	ln -fs /synced/mediawiki /srv/http/mediawiki
-fi
+# expose mediawiki later
+mkdir -p /srv/http/mediawiki
+ln -fs /synced/mediawiki /srv/http/mediawiki
 
 # php5 for lazy debian defaults
 apt-get install -y php5-fpm
@@ -41,6 +39,7 @@ apt-get install -y php5-apcu 				# local object caching
 apt-get install -y php5-mysqlnd				# mysql php driver
 apt-get install -y imagemagick 				# imagemagick for thumbnails
 apt-get install -y texlive					# for mathematical inline display
+apt-get install -y unzip					# for unzipping extensions
 
 # build
 mkdir /root/junk
