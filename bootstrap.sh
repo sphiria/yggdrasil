@@ -24,7 +24,7 @@ fi
 
 # expose mediawiki later
 mkdir -p /srv/http/mediawiki
-ln -fs /synced/mediawiki /srv/http/mediawiki
+ln -fs /synced/mediawiki /srv/http
 
 # php5 for lazy debian defaults
 apt-get install -y php5-fpm
